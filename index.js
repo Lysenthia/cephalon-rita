@@ -1,12 +1,18 @@
 //Initialise required libraries and fetch data
 const Discord = require('discord.js');
 const client = new Discord.Client();
+
 const Items = require('warframe-items');
 const items = new Items(['Primary', 'Secondary', 'Melee', 'Warframes', 'Archwing']);
+
 const fs = require('fs');
 const clientid = fs.readFileSync('key').toString('ascii');
 
-//Finds item
+//Capatalise function because js lacks one
+function capitalise(string) {
+	return string.charAt(0).toUpperCase() + string.substring(1);
+}
+//Searchs data for item
 function lookup_item(data, itemname) {
 	var result = new Array();
 	data.forEach(category => {
@@ -18,6 +24,7 @@ function lookup_item(data, itemname) {
 	return result;
 }
 
+//Calls lookup_item with the correct values
 function finditem(itemtype, itemname) {
 	var item;
 	switch(itemtype) {
@@ -41,33 +48,37 @@ function finditem(itemtype, itemname) {
 	return item;
 }
 
+//Displays message if an exception is encountered
 function internal_error(msg, error) {
 	msg.reply("Sorry, an internal error was encountered");
 	//Replace the number with your debug channel
 	client.channels.get('601007428904943616').send('Error: '.concat(error));
 }
 
+//Returns the correctly formatted message for an item lookup
 function format_item(result, command) {
 	var text;
-	if (command == '!weapon') {
+	if (command == '!weapon' || (command == '!archwing' && result.slot == '1')) {
 		text = ` 
-Weapon name: ${result.name}
-Base damage: ${result.damage}
-Crit chance: ${Math.round(result.criticalChance * 100)}%
-Crit damage: ${result.criticalMultiplier}x
-Status chance: ${Math.round(result.procChance * 100)}%
-Riven disposition ${'\u25CF'.repeat(result.disposition).concat('\u25CB'.repeat(5 - result.disposition))}`
+Weapon Name: ${result.name}
+Base Damage: ${result.totalDamage}
+${Object.keys(result.damageTypes).map(k => '\t' + capitalise(k) + ': ' + result.damageTypes[k].toString()).join('\n')}
+Crit Chance: ${Math.round(result.criticalChance * 100)}%
+Crit Damage: ${result.criticalMultiplier}x
+Status Chance: ${Math.round(result.procChance * 100)}%
+Reload Speed: ${result.reloadTime}
+Mag Size: ${result.magazineSize}
+Fire Rate: ${result.fireRate}
+Riven Disposition ${'\u25CF'.repeat(result.disposition).concat('\u25CB'.repeat(5 - result.disposition))}`
 	} else if (command == '!warframe') {
 		text = ` 
 Warframe Name: ${result.name}
-Base Health: ${result.health}
-Base Shields: ${result.shield}
+Base Health: ${result.health} (${result.health * 3})
+Base Shields: ${result.shield} (${result.shield * 3})
 Base Armour: ${result.armor}
-Base Energy: ${result.power}
+Base Energy: ${result.power} (${result.power * 1.5})
 Sprint Speed: ${result.sprintSpeed}
 `
-	} else if (command == '!archwing' && result.slot == '1') {
-		//Archgun
 	} else if (command == '!archwing' && result.slot == '5') {
 		//Archmelee
 	} else if (command == '!archwing') {
@@ -93,9 +104,11 @@ client.on('message', msg => {
 		var command = msg.content.substr(0, msg.content.indexOf(" ")).toLowerCase();
 		var arg = msg.content.substr(msg.content.indexOf(" ")).toLowerCase();
 		switch(command) {
+			case '!wf':
+				command = '!warframe';
 			case '!weapon':
 			case '!warframe':
-			case 'archwing':
+			case '!archwing':
 				result = finditem(command, arg);
 				if (result == -1) {
 					msg.reply("Could not find the requested item");
@@ -113,4 +126,5 @@ client.on('message', msg => {
 	}
  });
 
+//Activates bot
 client.login(clientid);
