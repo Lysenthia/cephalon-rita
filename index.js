@@ -51,21 +51,21 @@ function format_item(result, command) {
 	var text;
 	if (command == '!weapon') {
 		text = ` 
-			Weapon name: ${result.name}
-			Base damage: ${result.damage}
-			Crit chance: ${Math.round(result.criticalChance * 100)}%
-			Crit damage: ${result.criticalMultiplier}x
-			Status chance: ${Math.round(result.procChance * 100)}%
-			Riven disposition ${'\u25CF'.repeat(result.disposition).concat('\u25CB'.repeat(5 - result.disposition))}`
+Weapon name: ${result.name}
+Base damage: ${result.damage}
+Crit chance: ${Math.round(result.criticalChance * 100)}%
+Crit damage: ${result.criticalMultiplier}x
+Status chance: ${Math.round(result.procChance * 100)}%
+Riven disposition ${'\u25CF'.repeat(result.disposition).concat('\u25CB'.repeat(5 - result.disposition))}`
 	} else if (command == '!warframe') {
 		text = ` 
-			Warframe name: ${result.name}
-			Base Health: ${result.health}
-			Base Shields: ${result.shield}
-			Base Armour: ${result.armor}
-			Base Energy: ${result.power}
-			Sprint speed: ${result.sprintSpeed}
-			Riven disposition ${'\u25CF'.repeat(result.disposition).concat('\u25CB'.repeat(5 - result.disposition))}`
+Warframe Name: ${result.name}
+Base Health: ${result.health}
+Base Shields: ${result.shield}
+Base Armour: ${result.armor}
+Base Energy: ${result.power}
+Sprint Speed: ${result.sprintSpeed}
+`
 	} else if (command == '!archwing' && result.slot == '1') {
 		//Archgun
 	} else if (command == '!archwing' && result.slot == '5') {
@@ -96,7 +96,7 @@ client.on('message', msg => {
 			case '!weapon':
 			case '!warframe':
 			case 'archwing':
-				result = finditem(command, itemname);
+				result = finditem(command, arg);
 				if (result == -1) {
 					msg.reply("Could not find the requested item");
 				} else {
