@@ -47,15 +47,36 @@ function internal_error(msg, error) {
 	client.channels.get('601007428904943616').send('Error: '.concat(error));
 }
 
-function format_weapon(result) {
-	var text = ` 
-Weapon name: ${result.name}
-Base damage: ${result.damage}
-Crit chance: ${Math.round(result.criticalChance * 100)}%
-Crit damage: ${result.criticalMultiplier}x
-Status chance: ${Math.round(result.procChance * 100)}%
-Riven disposition ${'\u25CF'.repeat(result.disposition).concat('\u25CB'.repeat(5 - result.disposition))}
-`
+function format_item(result, command) {
+	var text;
+	if (command == '!weapon') {
+		text = ` 
+			Weapon name: ${result.name}
+			Base damage: ${result.damage}
+			Crit chance: ${Math.round(result.criticalChance * 100)}%
+			Crit damage: ${result.criticalMultiplier}x
+			Status chance: ${Math.round(result.procChance * 100)}%
+			Riven disposition ${'\u25CF'.repeat(result.disposition).concat('\u25CB'.repeat(5 - result.disposition))}`
+	} else if (command == '!warframe') {
+		text = ` 
+			Warframe name: ${result.name}
+			Base Health: ${result.health}
+			Base Shields: ${result.shield}
+			Base Armour: ${result.armor}
+			Base Energy: ${result.power}
+			Sprint speed: ${result.sprintSpeed}
+			Riven disposition ${'\u25CF'.repeat(result.disposition).concat('\u25CB'.repeat(5 - result.disposition))}`
+	} else if (command == '!archwing' && result.slot == '1') {
+		//Archgun
+	} else if (command == '!archwing' && result.slot == '5') {
+		//Archmelee
+	} else if (command == '!archwing') {
+		//Archwing
+	} else {
+		throw 'Invalid command passed, tried to find '.concat(itemtype);
+		return;
+	}
+	return text;
 }
 
 //On bot startup
@@ -69,23 +90,22 @@ client.on('message', msg => {
 		var args;
 		var results;
 		if (msg.author.bot) return;
-		if (msg.content.startsWith('!weapon')) {
-				itemname = msg.content.slice('!weapon'.length).toLowerCase();
-				result = finditem('!weapon', itemname);
-		} else if (msg.content.startsWith('!warframe')) {
-				itemname = msg.content.slice('!weapon'.length).toLowerCase();
-				result = finditem('!weapon', itemname);
-		} else if (msg.content.startsWith(itemtype == '!archwing')) {
-				itemname = msg.content.slice('!archwing'.length).toLowerCase();
-				result = finditem('!archwing', itemname);
-		} else {
+		var command = msg.content.substr(0, msg.content.indexOf(" ")).toLowerCase();
+		var arg = msg.content.substr(msg.content.indexOf(" ")).toLowerCase();
+		switch(command) {
+			case '!weapon':
+			case '!warframe':
+			case 'archwing':
+				result = finditem(command, itemname);
+				if (result == -1) {
+					msg.reply("Could not find the requested item");
+				} else {
+					msg.reply(format_item(result, command));
+				}
+				break;
+			default:
 				msg.reply("Invalid command");
 				return;
-		}
-		if (result == -1) {
-			msg.reply("Could not find the requested item");
-		} else {
-			msg.reply();
 		}
 	} catch(e) {
 		console.log(e);
