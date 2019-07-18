@@ -6,7 +6,7 @@ const Items = require('warframe-items');
 const items = new Items(['Primary', 'Secondary', 'Melee', 'Warframes', 'Archwing']);
 
 const fs = require('fs');
-const clientid = fs.readFileSync('key').toString('ascii');
+const clientid = fs.readFileSync('key').toString('ascii').trim();
 
 //Capatalise function because js lacks one
 function capitalise(string) {
@@ -58,7 +58,7 @@ function internal_error(msg, error) {
 //Returns the correctly formatted message for an item lookup
 function format_item(result, command) {
 	var text;
-	if (command == '!weapon' || (command == '!archwing' && result.slot == '1')) {
+	if ((command == '!weapon' && result.category != 'Melee') || (command == '!archwing' && result.slot == '1')) {
 		text = ` 
 Weapon Name: ${result.name}
 Base Damage: ${result.totalDamage}
@@ -79,10 +79,25 @@ Base Armour: ${result.armor}
 Base Energy: ${result.power} (${result.power * 1.5})
 Sprint Speed: ${result.sprintSpeed}
 `
-	} else if (command == '!archwing' && result.slot == '5') {
-		//Archmelee
+	} else if ((command == '!weapon' && result.category == 'Melee') ||command == '!archwing' && result.slot == '5') {
+		text = ` 
+Weapon Name: ${result.name}
+Base Damage: ${result.totalDamage}
+${Object.keys(result.damageTypes).map(k => '\t' + capitalise(k) + ': ' + result.damageTypes[k].toString()).join('\n')}
+Crit Chance: ${Math.round(result.criticalChance * 100)}%
+Crit Damage: ${result.criticalMultiplier}x
+Status Chance: ${Math.round(result.procChance * 100)}%
+Attack Speed: ${result.fireRate}
+Riven Disposition ${'\u25CF'.repeat(result.disposition).concat('\u25CB'.repeat(5 - result.disposition))}`
 	} else if (command == '!archwing') {
-		//Archwing
+		text = ` 
+Archwing Name: ${result.name}
+Base Health: ${result.health} (${result.health * 3})
+Base Shields: ${result.shield} (${result.shield * 3})
+Base Armour: ${result.armor}
+Base Energy: ${result.power} (${result.power * 1.5})
+Flight Speed: ${result.sprintSpeed}
+`
 	} else {
 		throw 'Invalid command passed, tried to find '.concat(itemtype);
 		return;
