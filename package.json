@@ -1,0 +1,23 @@
+{
+  "name": "cephalon-rita",
+  "version": "1.0.0",
+  "description": "A simple warframe discord bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lysenthia/cephalon-rita.git"
+  },
+  "author": "Lysenthia",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Lysenthia/cephalon-rita/issues"
+  },
+  "homepage": "https://github.com/Lysenthia/cephalon-rita#readme",
+  "dependencies": {
+    "discord.js": "^11.5.1",
+    "warframe-items": "^1.449.0"
+  }
+}
